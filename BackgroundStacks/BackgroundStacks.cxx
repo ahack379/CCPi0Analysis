@@ -1091,10 +1091,10 @@ namespace larlite {
 	      // Fill perfect clustering info for the mccluster corresponding to true
               for ( auto const & mcc_hid : ass_mcclus_v[max_cid] ){
                 auto mch = ev_hit->at(mcc_hid) ;
-                float lifetime_corr = exp( mch.PeakTime() * clocktick / 1.e20);
-                float electrons = mch.Integral() * 198.; //mcc8 value
+                float lifetime_corr = exp( mch.PeakTime() * clocktick / _lifetime_corr) ; //1.e20);
+                float electrons = mch.Integral() * _gain; // mcc8 value
                 float dQ = electrons * lifetime_corr * 23.6 * 1e-6 ;
-                float dE = dQ / 0.577 ; // 0.62 -> recomb factor
+                float dE = dQ / _recomb ; // recomb factor
                 mc_clus_e += dE ;
               }   
             }
@@ -1334,10 +1334,10 @@ namespace larlite {
 	   // Fill perfect clustering info for the mccluster corresponding to true
            for ( auto const & mcc_hid : ass_mcclus_v[max_cid] ){
              auto mch = ev_hit->at(mcc_hid) ;
-             float lifetime_corr = exp( mch.PeakTime() * clocktick / 1.e20);
-             float electrons = mch.Integral() * 198.; //mcc8 value
+             float lifetime_corr = exp( mch.PeakTime() * clocktick / _lifetime_corr );
+             float electrons = mch.Integral() * _gain; //mcc8 value
              float dQ = electrons * lifetime_corr * 23.6 * 1e-6 ;
-             float dE = dQ / 0.577 ; // 0.62 -> recomb factor
+             float dE = dQ / _recomb ; // recomb factor
              mc_clus_e += dE ;
            }   
 
@@ -1578,10 +1578,10 @@ namespace larlite {
 	     // Fill perfect clustering info for the mccluster corresponding to true
              for ( auto const & mcc_hid : ass_mcclus_v[max_cid] ){
                auto mch = ev_hit->at(mcc_hid) ;
-               float lifetime_corr = exp( mch.PeakTime() * clocktick / 1.e20);
-               float electrons = mch.Integral() * 198.; //mcc8 value
+               float lifetime_corr = exp( mch.PeakTime() * clocktick / _lifetime_corr);
+               float electrons = mch.Integral() * _gain; //mcc8 value
                float dQ = electrons * lifetime_corr * 23.6 * 1e-6 ;
-               float dE = dQ / 0.577 ; // 0.62 -> recomb factor
+               float dE = dQ / _recomb ; // 0.62 -> recomb factor
                mc_clus_e += dE ;
              }   
              _shr_perfect_clustering_E = mc_clus_e ;

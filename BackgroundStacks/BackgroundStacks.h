@@ -31,7 +31,8 @@ namespace larlite {
 
     /// Default constructor
     BackgroundStacks(){ _name="BackgroundStacks"; _fout=0; _tree=0; _shower_tree = 0; _univ=0; _get_genie_info=false; 
-			      _eventweight_producer = ""; _N = 0; _N_xsec = 0; _beam_min = 3.2; _beam_max = 4.8; }
+			      _eventweight_producer = ""; _N = 0; _N_xsec = 0; _beam_min = 3.2; _beam_max = 4.8; _gain = 196.97874008458268; 
+			      _recomb = 0.572; _lifetime_corr = 1e20; }
 
     /// Default destructor
     virtual ~BackgroundStacks(){}
@@ -72,6 +73,8 @@ namespace larlite {
     void SetNominalXsec ( float nom ) { _N_xsec = nom ; }
 
     void SetBeamWindow(float beam_min, float beam_max) { _beam_min = beam_min; _beam_max = beam_max ; }
+
+    void SetGainRecomLifetime(float gain, float recomb, float lt) { _gain = gain; _recomb = recomb; _lifetime_corr = lt; }
 
   protected:
 
@@ -119,6 +122,9 @@ namespace larlite {
     float _N ;
     float _N_xsec ;
     std::string _eventweight_producer ;
+    float _gain ;
+    float _recomb ;
+    float _lifetime_corr ;
 
     // Flux + GENIE variables
     std::vector<std::string> _genie_label_v ;
