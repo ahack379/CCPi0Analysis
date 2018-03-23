@@ -18,6 +18,7 @@
 #include "Analysis/ana_base.h"
 #include "GeoAlgo/GeoAlgo.h"
 #include "LArUtil/SpaceChargeMicroBooNE.h"
+#include "DataFormat/track.h"
 
 
 namespace larlite {
@@ -60,6 +61,8 @@ namespace larlite {
 
     void clear() ;
 
+    void shower_clear() ;
+
     // The rest is for uncertainty re-weighting
     // Tell the module to calculate uncertainties 
     void GetUncertaintyInfo  ( bool getit=false ) { _get_genie_info = getit; }
@@ -75,6 +78,12 @@ namespace larlite {
     void SetBeamWindow(float beam_min, float beam_max) { _beam_min = beam_min; _beam_max = beam_max ; }
 
     void SetGainRecomLifetime(float gain, float recomb, float lt) { _gain = gain; _recomb = recomb; _lifetime_corr = lt; }
+
+    double Median(std::vector<double> in) ;
+
+    double TrunMean(std::vector<double> in) ;
+
+    double MaxDeflection(larlite::track t );
 
   protected:
 
@@ -151,6 +160,9 @@ namespace larlite {
     float _mc_vtx_x ;
     float _mc_vtx_y ;
     float _mc_vtx_z ;
+    float _mc_scecorr_vtx_x ;
+    float _mc_scecorr_vtx_y ;
+    float _mc_scecorr_vtx_z ;
     // Variables related to flashes
     float _flash_time ;
     int _flash_pe ;
@@ -159,6 +171,16 @@ namespace larlite {
     float _flash_y_width;
     float _flash_z_width ;
     // Variables related to candidate muon
+    float _mu_true_angle ;
+    float _mu_true_phi ;
+    float _mu_true_mom ;
+    float _mu_true_startx ;
+    float _mu_true_starty ;
+    float _mu_true_startz ;
+    float _mu_true_endx ;
+    float _mu_true_endy ;
+    float _mu_true_endz ;
+
     float _mu_angle ;
     float _mu_len ;
     float _mu_startx ;
@@ -178,6 +200,13 @@ namespace larlite {
     float _mu_type ;   // is this mccluster due to track(0) or shower(1)
     int _mu_mother_pdg ;
     int _mu_pdg ;
+
+    float _mu_deviation ;
+    float _mu_trun_mean_dqdx ;
+
+    // Variables about showers
+    int _n_mcs_at_vtx ;
+    int _n_reco_at_vtx ;
     // Variables related to pi0 selection
     //float _mc_clus_e_0 ;
     //float _mc_clus_e_1 ;
@@ -209,6 +238,12 @@ namespace larlite {
     float _pi0_low_true_st_x ;
     float _pi0_low_true_st_y ;
     float _pi0_low_true_st_z ;
+    float _pi0_low_true_scecorr_st_x ;
+    float _pi0_low_true_scecorr_st_y ;
+    float _pi0_low_true_scecorr_st_z ;
+    float _pi0_low_true_detProf_st_x ;
+    float _pi0_low_true_detProf_st_y ;
+    float _pi0_low_true_detProf_st_z ;
     float _pi0_low_dist_to_nearest_trk ;
     //float _pi0_high_shrE;
     float _pi0_high_radL;
@@ -232,6 +267,12 @@ namespace larlite {
     float _pi0_high_true_st_x ;
     float _pi0_high_true_st_y ;
     float _pi0_high_true_st_z ;
+    float _pi0_high_true_scecorr_st_x ;
+    float _pi0_high_true_scecorr_st_y ;
+    float _pi0_high_true_scecorr_st_z ;
+    float _pi0_high_true_detProf_st_x ;
+    float _pi0_high_true_detProf_st_y ;
+    float _pi0_high_true_detProf_st_z ;
     float _pi0_high_dist_to_nearest_trk ;
     // Variables related to single shower selection
     float _gamma_startx;
@@ -240,6 +281,9 @@ namespace larlite {
     float _gamma_true_startx;
     float _gamma_true_starty;
     float _gamma_true_startz;
+    float _gamma_true_detProf_startx;
+    float _gamma_true_detProf_starty;
+    float _gamma_true_detProf_startz;
     float _gamma_E;
     float _gamma_RL ;
     float _gamma_IP_w_vtx;
@@ -279,6 +323,9 @@ namespace larlite {
     float _shr_true_startx;
     float _shr_true_starty;
     float _shr_true_startz;
+    float _shr_true_detProf_startx;
+    float _shr_true_detProf_starty;
+    float _shr_true_detProf_startz;
     float _shr_startw;
     float _shr_startt;
     float _shr_dirx;
@@ -302,6 +349,9 @@ namespace larlite {
     float _shr_rl;
     int _shr_mother_pdg ;
     int _shr_pdg ;
+
+    int _shr_n_true;
+    int _shr_n_reco ;
 
     // For flux variations  
     TTree * _univ;

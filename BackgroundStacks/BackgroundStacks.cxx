@@ -15,6 +15,7 @@
 #include "DataFormat/opflash.h"
 #include "DataFormat/hit.h"
 #include "DataFormat/mceventweight.h"
+#include "DataFormat/calorimetry.h"
 
 #include "LArUtil/GeometryHelper.h"
 #include "LArUtil/DetectorProperties.h"
@@ -161,6 +162,9 @@ namespace larlite {
       _tree->Branch("mc_vtx_x",&_mc_vtx_x,"mc_vtx_x/F");
       _tree->Branch("mc_vtx_y",&_mc_vtx_y,"mc_vtx_y/F");
       _tree->Branch("mc_vtx_z",&_mc_vtx_z,"mc_vtx_z/F");
+      _tree->Branch("mc_scecorr_vtx_x",&_mc_scecorr_vtx_x,"mc_scecorr_vtx_x/F");
+      _tree->Branch("mc_scecorr_vtx_y",&_mc_scecorr_vtx_y,"mc_scecorr_vtx_y/F");
+      _tree->Branch("mc_scecorr_vtx_z",&_mc_scecorr_vtx_z,"mc_scecorr_vtx_z/F");
       // Flashes
       _tree->Branch("flash_time",&_flash_time,"flash_time/F");
       _tree->Branch("flash_pe",&_flash_pe,"flash_pe/I");
@@ -169,6 +173,15 @@ namespace larlite {
       _tree->Branch("flash_y_width",&_flash_y_width,"flash_y_width/F");
       _tree->Branch("flash_z_width",&_flash_z_width,"flash_z_width/F");
       // Candidate Muon
+      _tree->Branch("mu_true_angle",&_mu_true_angle,"mu_true_angle/F");
+      _tree->Branch("mu_true_phi",&_mu_true_phi,"mu_true_phi/F");
+      _tree->Branch("mu_true_mom",&_mu_true_mom,"mu_true_mom/F");
+      _tree->Branch("mu_true_startx",&_mu_true_startx,"mu_true_startx/F");
+      _tree->Branch("mu_true_starty",&_mu_true_starty,"mu_true_starty/F");
+      _tree->Branch("mu_true_startz",&_mu_true_startz,"mu_true_startz/F");
+      _tree->Branch("mu_true_endx",&_mu_true_endx,"mu_true_endx/F");
+      _tree->Branch("mu_true_endy",&_mu_true_endy,"mu_true_endy/F");
+      _tree->Branch("mu_true_endz",&_mu_true_endz,"mu_true_endz/F");
       _tree->Branch("mu_angle",&_mu_angle,"mu_angle/F");
       _tree->Branch("mu_len",&_mu_len,"mu_len/F");
       _tree->Branch("mu_startx",&_mu_startx,"mu_startx/F");
@@ -187,6 +200,13 @@ namespace larlite {
       _tree->Branch("mu_type",&_mu_type,"mu_type/F");
       _tree->Branch("mu_pdg",&_mu_pdg,"mu_pdg/I");
       _tree->Branch("mu_mother_pdg",&_mu_mother_pdg,"mu_mother_pdg/I");
+      _tree->Branch("mu_deviation",&_mu_deviation,"mu_deviation/F");
+      _tree->Branch("mu_trun_mean_dqdx",&_mu_trun_mean_dqdx,"mu_trun_mean_dqdx/F");
+      _tree->Branch("mu_pdg",&_mu_pdg,"mu_pdg/I");
+
+      // Showers
+      _tree->Branch("n_mcs_at_vtx",&_n_mcs_at_vtx,"n_mcs_at_vtx/I");
+      _tree->Branch("n_reco_at_vtx",&_n_reco_at_vtx,"n_reco_at_vtx/I");
       // Candidate pi0 showers -- only filled when _get_pi0_info is true
       _tree->Branch("pi0_mass",&_pi0_mass,"pi0_mass/F");
       _tree->Branch("pi0_oangle",&_pi0_oangle,"pi0_oangle/F");
@@ -210,9 +230,15 @@ namespace larlite {
       _tree->Branch("pi0_low_st_x",&_pi0_low_st_x,"pi0_low_st_x/F");
       _tree->Branch("pi0_low_st_y",&_pi0_low_st_y,"pi0_low_st_y/F");
       _tree->Branch("pi0_low_st_z",&_pi0_low_st_z,"pi0_low_st_z/F");
+      _tree->Branch("pi0_low_true_scecorr_st_x",&_pi0_low_true_scecorr_st_x,"pi0_low_true_scecorr_st_x/F");
+      _tree->Branch("pi0_low_true_scecorr_st_y",&_pi0_low_true_scecorr_st_y,"pi0_low_true_scecorr_st_y/F");
+      _tree->Branch("pi0_low_true_scecorr_st_z",&_pi0_low_true_scecorr_st_z,"pi0_low_true_scecorr_st_z/F");
       _tree->Branch("pi0_low_true_st_x",&_pi0_low_true_st_x,"pi0_low_true_st_x/F");
       _tree->Branch("pi0_low_true_st_y",&_pi0_low_true_st_y,"pi0_low_true_st_y/F");
       _tree->Branch("pi0_low_true_st_z",&_pi0_low_true_st_z,"pi0_low_true_st_z/F");
+      _tree->Branch("pi0_low_true_detProf_st_x",&_pi0_low_true_detProf_st_x,"pi0_low_true_detProf_st_x/F");
+      _tree->Branch("pi0_low_true_detProf_st_y",&_pi0_low_true_detProf_st_y,"pi0_low_true_detProf_st_y/F");
+      _tree->Branch("pi0_low_true_detProf_st_z",&_pi0_low_true_detProf_st_z,"pi0_low_true_detProf_st_z/F");
       _tree->Branch("pi0_low_dist_to_nearest_trk",&_pi0_low_dist_to_nearest_trk,"pi0_low_dist_to_nearest_trk/F");
       _tree->Branch("pi0_low_mother_pdg",&_pi0_low_mother_pdg,"pi0_low_mother_pdg/I");
       _tree->Branch("pi0_low_pdg",&_pi0_low_pdg,"pi0_low_pdg/I");
@@ -233,9 +259,15 @@ namespace larlite {
       _tree->Branch("pi0_high_st_x",&_pi0_high_st_x,"pi0_high_st_x/F");
       _tree->Branch("pi0_high_st_y",&_pi0_high_st_y,"pi0_high_st_y/F");
       _tree->Branch("pi0_high_st_z",&_pi0_high_st_z,"pi0_high_st_z/F");
+      _tree->Branch("pi0_high_true_scecorr_st_x",&_pi0_high_true_scecorr_st_x,"pi0_high_true_scecorr_st_x/F");
+      _tree->Branch("pi0_high_true_scecorr_st_y",&_pi0_high_true_scecorr_st_y,"pi0_high_true_scecorr_st_y/F");
+      _tree->Branch("pi0_high_true_scecorr_st_z",&_pi0_high_true_scecorr_st_z,"pi0_high_true_scecorr_st_z/F");
       _tree->Branch("pi0_high_true_st_x",&_pi0_high_true_st_x,"pi0_high_true_st_x/F");
       _tree->Branch("pi0_high_true_st_y",&_pi0_high_true_st_y,"pi0_high_true_st_y/F");
       _tree->Branch("pi0_high_true_st_z",&_pi0_high_true_st_z,"pi0_high_true_st_z/F");
+      _tree->Branch("pi0_high_true_detProf_st_x",&_pi0_high_true_detProf_st_x,"pi0_high_true_detProf_st_x/F");
+      _tree->Branch("pi0_high_true_detProf_st_y",&_pi0_high_true_detProf_st_y,"pi0_high_true_detProf_st_y/F");
+      _tree->Branch("pi0_high_true_detProf_st_z",&_pi0_high_true_detProf_st_z,"pi0_high_true_detProf_st_z/F");
       _tree->Branch("pi0_high_dist_to_nearest_trk",&_pi0_high_dist_to_nearest_trk,"pi0_high_dist_to_nearest_trk/F");
       _tree->Branch("pi0_high_mother_pdg",&_pi0_high_mother_pdg,"pi0_high_mother_pdg/I");
       _tree->Branch("pi0_high_pdg",&_pi0_high_pdg,"pi0_high_pdg/I");
@@ -249,6 +281,9 @@ namespace larlite {
       _tree->Branch("gamma_true_startx",&_gamma_true_startx,"gamma_true_startx/F");
       _tree->Branch("gamma_true_starty",&_gamma_true_starty,"gamma_true_starty/F");
       _tree->Branch("gamma_true_startz",&_gamma_true_startz,"gamma_true_startz/F");
+      _tree->Branch("gamma_true_detProf_startx",&_gamma_true_detProf_startx,"gamma_true_detProf_startx/F");
+      _tree->Branch("gamma_true_detProf_starty",&_gamma_true_detProf_starty,"gamma_true_detProf_starty/F");
+      _tree->Branch("gamma_true_detProf_startz",&_gamma_true_detProf_startz,"gamma_true_detProf_startz/F");
       _tree->Branch("gamma_purity",&_gamma_purity,"gamma_purity/F");
       _tree->Branch("gamma_complete",&_gamma_complete,"gamma_complete/F");
       _tree->Branch("gamma_cw_purity",&_gamma_cw_purity,"gamma_cw_purity/F");
@@ -296,6 +331,9 @@ namespace larlite {
       _shower_tree->Branch("shr_true_startx",&_shr_true_startx,"shr_true_startx/F");
       _shower_tree->Branch("shr_true_starty",&_shr_true_starty,"shr_true_starty/F");
       _shower_tree->Branch("shr_true_startz",&_shr_true_startz,"shr_true_startz/F");
+      _shower_tree->Branch("shr_true_detProf_startx",&_shr_true_detProf_startx,"shr_true_detProf_startx/F");
+      _shower_tree->Branch("shr_true_detProf_starty",&_shr_true_detProf_starty,"shr_true_detProf_starty/F");
+      _shower_tree->Branch("shr_true_detProf_startz",&_shr_true_detProf_startz,"shr_true_detProf_startz/F");
       _shower_tree->Branch("shr_trueE",&_shr_trueE,"shr_trueE/F");
       _shower_tree->Branch("shr_trueE_detProf",&_shr_trueE_detProf,"shr_trueE_detProf/F");
       _shower_tree->Branch("shr_perfect_clustering_E",&_shr_perfect_clustering_E,"shr_perfect_clustering_E/F");
@@ -314,6 +352,9 @@ namespace larlite {
       _shower_tree->Branch("shr_from_pi0",&_shr_from_pi0,"shr_from_pi0/B");
       _shower_tree->Branch("shr_pdg",&_shr_pdg,"shr_pdg/I");
       _shower_tree->Branch("shr_mother_pdg",&_shr_mother_pdg,"shr_mother_pdg/I");
+      _shower_tree->Branch("shr_n_true",&_shr_n_true,"shr_n_true/I");
+      _shower_tree->Branch("shr_n_reco",&_shr_n_reco,"shr_n_reco/I");
+
     }   
 
     // For analysis of GENIE and flux xsec uncertainties -- filled once in finalize() function
@@ -343,6 +384,9 @@ namespace larlite {
     _mc_vtx_x   = -999;
     _mc_vtx_y   = -999;
     _mc_vtx_z   = -999;
+    _mc_scecorr_vtx_x   = -999;
+    _mc_scecorr_vtx_y   = -999;
+    _mc_scecorr_vtx_z   = -999;
 
     _flash_time = -999;
     _flash_pe = -1 ;
@@ -350,6 +394,16 @@ namespace larlite {
     _flash_z_center = -999;
     _flash_y_width = -999;
     _flash_z_width = -999;
+
+    _mu_true_angle = -999;
+    _mu_true_phi  = -999;
+    _mu_true_mom  = -999;
+    _mu_true_startx = -999;
+    _mu_true_starty = -999;
+    _mu_true_startz = -999;
+    _mu_true_endx = -999;
+    _mu_true_endy = -999;
+    _mu_true_endz = -999;
 
     _mu_angle = -999;
     _mu_len   = -999;
@@ -368,6 +422,9 @@ namespace larlite {
     _mu_type   = -1 ; // 0 is track
     _mu_pdg = -1;  
     _mu_mother_pdg = -1;  
+
+    _n_mcs_at_vtx = 0;
+    _n_reco_at_vtx = 0;
 
     _pi0_mass = -999;
     _pi0_oangle = -999;
@@ -391,9 +448,15 @@ namespace larlite {
     _pi0_low_st_x  = -999;
     _pi0_low_st_y  = -999;
     _pi0_low_st_z  = -999;
+    _pi0_low_true_scecorr_st_x = -999;
+    _pi0_low_true_scecorr_st_y = -999;
+    _pi0_low_true_scecorr_st_z = -999;
     _pi0_low_true_st_x = -999;
     _pi0_low_true_st_y = -999;
     _pi0_low_true_st_z = -999;
+    _pi0_low_true_detProf_st_x = -999;
+    _pi0_low_true_detProf_st_y = -999;
+    _pi0_low_true_detProf_st_z = -999;
     _pi0_low_dist_to_nearest_trk = -999 ;
     _pi0_low_mother_pdg = -1;
     _pi0_low_pdg = -1;
@@ -415,9 +478,15 @@ namespace larlite {
     _pi0_high_st_x = -999 ;
     _pi0_high_st_y = -999 ;
     _pi0_high_st_z = -999 ;
+    _pi0_high_true_scecorr_st_x= -999 ;
+    _pi0_high_true_scecorr_st_y= -999 ;
+    _pi0_high_true_scecorr_st_z= -999 ;
     _pi0_high_true_st_x= -999 ;
     _pi0_high_true_st_y= -999 ;
     _pi0_high_true_st_z= -999 ;
+    _pi0_high_true_detProf_st_x= -999 ;
+    _pi0_high_true_detProf_st_y= -999 ;
+    _pi0_high_true_detProf_st_z= -999 ;
     _pi0_high_dist_to_nearest_trk = -999 ;
     _pi0_high_mother_pdg = -1;
     _pi0_high_pdg = -1;
@@ -428,6 +497,9 @@ namespace larlite {
     _gamma_true_startx = -999 ;
     _gamma_true_starty = -999 ;
     _gamma_true_startz = -999 ;
+    _gamma_true_detProf_startx = -999 ;
+    _gamma_true_detProf_starty = -999 ;
+    _gamma_true_detProf_startz = -999 ;
     _gamma_E = -999;
     _gamma_RL = -999;
     _gamma_IP_w_vtx = -999;
@@ -444,28 +516,6 @@ namespace larlite {
     _gamma_pdg = -1;
     _gamma_mother_pdg = -1;
 
-    _shr_true_startx = -999;
-    _shr_true_starty = -999;
-    _shr_true_startz = -999;
-    _shr_startx = -999;
-    _shr_starty = -999;
-    _shr_startz = -999;
-    _shr_startw = -999;
-    _shr_startt = -999;
-    _shr_dirx = -999;
-    _shr_diry = -999;
-    _shr_dirz = -999;
-    _shr_energy = -999;
-    _shr_trueE= -999;
-    _shr_trueE_detProf= -999;
-    _shr_perfect_clustering_E = -999;
-    _shr_oangle = -999;
-    _shr_dedx = -999;
-    _shr_vtx_dist = -999;
-    _shr_trk_delta_theta = -999;
-    _shr_trk_delta_phi = -999;
-    _shr_pdg = -1;
-    _shr_mother_pdg = -1;
 
     // additions post technote version v0.9
     _n_track_hits_0 = 0;
@@ -501,7 +551,89 @@ namespace larlite {
     _sel_evts_p1.resize(funcs,0) ;
 
   }
+
+  void BackgroundStacks::shower_clear(){
   
+    _shr_true_startx = -999;
+    _shr_true_starty = -999;
+    _shr_true_startz = -999;
+    _shr_true_detProf_startx = -999;
+    _shr_true_detProf_starty = -999;
+    _shr_true_detProf_startz = -999;
+    _shr_startx = -999;
+    _shr_starty = -999;
+    _shr_startz = -999;
+    _shr_startw = -999;
+    _shr_startt = -999;
+    _shr_dirx = -999;
+    _shr_diry = -999;
+    _shr_dirz = -999;
+    _shr_energy = -999;
+    _shr_trueE= -999;
+    _shr_trueE_detProf= -999;
+    _shr_perfect_clustering_E = -999;
+    _shr_oangle = -999;
+    _shr_dedx = -999;
+    _shr_vtx_dist = -999;
+    _shr_trk_delta_theta = -999;
+    _shr_trk_delta_phi = -999;
+    _shr_pdg = -1;
+    _shr_mother_pdg = -1;
+    _shr_n_true = -1;
+    _shr_n_reco = -1;
+  
+  }
+
+  double BackgroundStacks::MaxDeflection(::larlite::track trk){
+
+     double max = 0;
+     std::vector<TVector3> mom;
+
+     for(int i = 0; i < trk.NumberTrajectoryPoints(); i++){
+
+         TVector3 nextpos;
+         TVector3 nextmom;
+         trk.TrajectoryAtPoint(i,nextpos,nextmom);
+         mom.push_back(nextmom);
+
+     }
+
+     for(int i = 0; i < int(mom.size())-1; i++){
+       if(max < mom.at(i).Angle(mom.at(i+1))) max = mom.at(i).Angle(mom.at(i+1));
+     }
+
+     return max*(180./3.14159265);
+
+  }
+
+  double BackgroundStacks::Median(std::vector<double> input){
+
+     int N = input.size();
+
+     double median;
+
+     std::sort(input.begin(), input.end());
+     if (N % 2 == 0){ median = (input[((N/2) - 1)] + input[N/2]) / 2;}
+     else if( N == 1){median = input[N];}
+     else{            median = input[N/2];}
+     return median;
+  }
+
+   double BackgroundStacks::TrunMean(std::vector <double> poop){
+
+     double RMS = TMath::RMS(poop.begin(),poop.end());
+     double median = Median(poop);
+
+     std::vector<double> TLMean;
+
+     for(int i = 0; i < int(poop.size()); i++){
+       if(poop[i] < median+RMS && poop[i] > median-RMS){TLMean.push_back(poop[i]);}
+     }
+
+     return TMath::Mean(TLMean.begin(), TLMean.end());
+  }
+
+
   bool BackgroundStacks::analyze(storage_manager* storage) {
 
     _event++ ;
@@ -532,8 +664,8 @@ namespace larlite {
     auto tagged_trk = ev_tagged_trk->at(0) ;
 
     // Fill track information
-    _mu_phi = tagged_trk.Phi();
-    _mu_angle = cos(tagged_trk.Theta());
+    _mu_phi = tagged_trk.VertexDirection().Phi();
+    _mu_angle = cos(tagged_trk.VertexDirection().Theta());
     _mu_len =   tagged_trk.Length(0); // Calculates the length from point 0 to end
     _mu_startx = tagged_trk.Vertex().X(); 
     _mu_starty = tagged_trk.Vertex().Y(); 
@@ -543,20 +675,91 @@ namespace larlite {
     _mu_endz = tagged_trk.End().Z(); 
 
     // Adjust for pandora bug
-    std::vector<double> dir = { (_mu_endx - _mu_startx) / _mu_len,
-                                (_mu_endy - _mu_starty) / _mu_len,
-                                (_mu_endz - _mu_startz) / _mu_len };
+    //std::vector<double> dir = { (_mu_endx - _mu_startx) / _mu_len,
+    //                            (_mu_endy - _mu_starty) / _mu_len,
+    //                            (_mu_endz - _mu_startz) / _mu_len };
 
-    auto dir_start = tagged_trk.VertexDirection();
-    std::vector<double> other_dir = { dir_start.X(), dir_start.Y(), dir_start.Z() };  
+    //auto dir_start = tagged_trk.VertexDirection();
+    //std::vector<double> other_dir = { dir_start.X(), dir_start.Y(), dir_start.Z() };  
 
-    float dotProd = dir.at(0) * other_dir.at(0) + dir.at(1) * other_dir.at(1) +  dir.at(2) * other_dir.at(2) ;
+    //float dotProd = dir.at(0) * other_dir.at(0) + dir.at(1) * other_dir.at(1) +  dir.at(2) * other_dir.at(2) ;
 
-    if( dotProd < 0 ) { 
-       TVector3 new_dir(-dir_start.X(),-dir_start.Y(),-dir_start.Z());
-       _mu_angle = cos(new_dir.Theta());
-       _mu_phi = new_dir.Phi();
+    //if( dotProd < 0 ) { 
+    //   TVector3 new_dir(-dir_start.X(),-dir_start.Y(),-dir_start.Z());
+    //   _mu_angle = cos(new_dir.Theta());
+    //   _mu_phi = new_dir.Phi();
+    //}   
+
+    // Also identify mip parameters
+    auto ev_t_p = storage->get_data<event_track>("pandoraNu");
+
+    auto ev_calo= storage->get_data<event_calorimetry>("pandoraNucalo");
+
+    if ( !ev_calo || ev_calo->size() == 0 ) {
+      std::cout << "No such calo associated to track! " << std::endl;
+      return false;
+    }
+
+    auto ev_ass = storage->get_data<larlite::event_ass>("pandoraNucalo");
+
+    if ( !ev_ass || ev_ass->size() == 0 ) {
+      std::cout << "No such association! " << std::endl;
+      return false;
+    }
+
+    auto const& ass_calo_v = ev_ass->association(ev_t_p->id(), ev_calo->id());
+    if ( ass_calo_v.size() == 0) {
+      std::cout << "No ass from track => hit! " << std::endl;
+      return false;
+    }
+
+    float min_dist = 1e9;
+    int min_it = -1; 
+    auto tag_st = tagged_trk.End() ;
+
+    for ( int i = 0; i < ev_t_p->size(); i++){
+
+      auto t = ev_t_p->at(i);
+      auto st = t.End() ;
+      auto dist = sqrt( pow(st.X() - tag_st.X(),2) + pow(st.Y() - tag_st.Y(),2) + pow(st.Z() - tag_st.Z(),2) );
+      if ( dist < min_dist ){
+        min_dist = dist;
+        min_it = i;
+      }
+    }
+
+    int N = 0;
+    std::vector<double> dqdx; 
+
+    // Get calo ID for plane 2 at the tagged track.
+    auto calo_it = ass_calo_v.at(min_it).at(2) ;
+    auto calo_i = ev_calo->at(calo_it); 
+
+    for(int i = 0; i < calo_i.dQdx().size(); i++){
+
+      if ( calo_i.dQdx().at(i) <= 0 ) continue;
+      N++;
+
+      if ( _mc_sample)
+        dqdx.push_back(calo_i.dQdx().at(i) * 198.);
+      else 
+        dqdx.push_back(calo_i.dQdx().at(i) * 243.);
     }   
+
+    if(N == 0)
+      dqdx.clear(); 
+    else{
+
+      std::sort(dqdx.begin(),dqdx.end());
+      auto TrackTLMeandQdx = TrunMean(dqdx);
+      _mu_trun_mean_dqdx = TrackTLMeandQdx ;
+
+      dqdx.clear();
+    }
+
+    auto TrackMaxDeflection = MaxDeflection(tagged_trk);
+    _mu_deviation = TrackMaxDeflection ;
+
 
     // Fill observed vertex multiplicity info + find ID of pandora track that is numuCC_track
     auto ev_trk = storage->get_data<event_track>("pandoraNu");
@@ -643,6 +846,7 @@ namespace larlite {
 
     std::vector<int> pur_ctr_v ;
     std::vector<float> cw_pur_ctr_v ;
+    std::vector<int> all_mcs_v ; // For shower reco eff later in shower_tree
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Need to access the origin of the tagged muon. Thus, need to find the MCTrack truth match to
@@ -681,10 +885,14 @@ namespace larlite {
       auto vtxtick = (tvtx / 1000.) * 2.;
       auto vtxtimecm = vtxtick * _time2cm; 
       auto sce_corr = _SCE->GetPosOffsets(mc_vtx_x,mc_vtx_y,mc_vtx_z);
+
+      _mc_vtx_x = mc_vtx_x;
+      _mc_vtx_y = mc_vtx_y;
+      _mc_vtx_z = mc_vtx_z;
       
-      _mc_vtx_x = mc_vtx_x + vtxtimecm + 0.7 - sce_corr.at(0);
-      _mc_vtx_y = mc_vtx_y + sce_corr.at(1);
-      _mc_vtx_z = mc_vtx_z + sce_corr.at(2);
+      _mc_scecorr_vtx_x = mc_vtx_x + vtxtimecm + 0.7 - sce_corr.at(0);
+      _mc_scecorr_vtx_y = mc_vtx_y + sce_corr.at(1);
+      _mc_scecorr_vtx_z = mc_vtx_z + sce_corr.at(2);
 
       // Now get Mccluster info
       auto ev_ass = storage->get_data<larlite::event_ass>("mccluster");
@@ -871,6 +1079,13 @@ namespace larlite {
             n_shr_111++ ;
             shr_it_v.emplace_back(si);
           }
+	  // For reco efficiency studies
+          if ( (s.PdgCode() == 22 && s.MotherPdgCode() == 111 && s.AncestorPdgCode() == 111 && s.Origin() == 1 ) ||
+	       (s.PdgCode() == 22 && s.AncestorPdgCode() == 22 && s.Origin() == 1 ) ||
+	       (s.PdgCode() == 11 && s.AncestorPdgCode() == 11 && s.Origin() == 1 ) ){
+	    _n_mcs_at_vtx++ ;
+            all_mcs_v.emplace_back(si);
+	  }
         } 
         if ( n_shr_111 == 2 ){ 
           auto s0 = ev_mcs->at(shr_it_v.at(0));
@@ -891,6 +1106,15 @@ namespace larlite {
          _mu_origin = mct.Origin(); 
          _mu_mother_pdg = mct.MotherPdgCode();
          _mu_pdg = mct.PdgCode();
+	 _mu_true_angle = mct.Start().Momentum().Theta() ;
+	 _mu_true_phi = mct.Start().Momentum().Phi() ;
+	 _mu_true_mom = mct.Start().Momentum().P() ;
+	 _mu_true_startx = mct.Start().X(); 
+	 _mu_true_starty = mct.Start().Y(); 
+	 _mu_true_startz = mct.Start().Z(); 
+	 _mu_true_endx = mct.End().X() ;
+	 _mu_true_endy = mct.End().Y() ;
+	 _mu_true_endz = mct.End().Z() ;
        }
        else{
          auto mcs = ev_mcs->at(ts_index) ;
@@ -1120,9 +1344,13 @@ namespace larlite {
 
 	        if ( _pi0_low_type == 1 ){
                   auto mcs = ev_mcs->at(ts_index) ;
-	          _pi0_low_true_st_x = mcs.DetProfile().X() ;
-	          _pi0_low_true_st_y = mcs.DetProfile().Y() ;
-	          _pi0_low_true_st_z = mcs.DetProfile().Z() ;
+	          _pi0_low_true_st_x = mcs.Start().X() ;
+	          _pi0_low_true_st_y = mcs.Start().Y() ;
+	          _pi0_low_true_st_z = mcs.Start().Z() ;
+	          _pi0_low_true_detProf_st_x = mcs.DetProfile().X() ;
+	          _pi0_low_true_detProf_st_y = mcs.DetProfile().Y() ;
+	          _pi0_low_true_detProf_st_z = mcs.DetProfile().Z() ;
+
 	          _pi0_low_true_gammaE = mcs.Start().E() ;
                   _pi0_low_true_detProf_gammaE = mcs.DetProfile().E() ;
 	        }
@@ -1145,9 +1373,12 @@ namespace larlite {
 
 	        if ( _pi0_high_type == 1){
                   auto mcs = ev_mcs->at(ts_index) ;
-	          _pi0_high_true_st_x = mcs.DetProfile().X() ;
-	          _pi0_high_true_st_y = mcs.DetProfile().Y() ;
-	          _pi0_high_true_st_z = mcs.DetProfile().Z() ;
+	          _pi0_high_true_st_x = mcs.Start().X() ;
+	          _pi0_high_true_st_y = mcs.Start().Y() ;
+	          _pi0_high_true_st_z = mcs.Start().Z() ;
+	          _pi0_high_true_detProf_st_x = mcs.DetProfile().X() ;
+	          _pi0_high_true_detProf_st_y = mcs.DetProfile().Y() ;
+	          _pi0_high_true_detProf_st_z = mcs.DetProfile().Z() ;
 	          _pi0_high_true_gammaE = mcs.Start().E() ;
                   _pi0_high_true_detProf_gammaE = mcs.DetProfile().E() ;
 	        }
@@ -1174,9 +1405,12 @@ namespace larlite {
 
 	        if ( _pi0_low_type == 1 ){
                   auto mcs = ev_mcs->at(ts_index) ;
-	          _pi0_low_true_st_x = mcs.DetProfile().X() ;
-	          _pi0_low_true_st_y = mcs.DetProfile().Y() ;
-	          _pi0_low_true_st_z = mcs.DetProfile().Z() ;
+	          _pi0_low_true_st_x = mcs.Start().X() ;
+	          _pi0_low_true_st_y = mcs.Start().Y() ;
+	          _pi0_low_true_st_z = mcs.Start().Z() ;
+	          _pi0_low_true_detProf_st_x = mcs.DetProfile().X() ;
+	          _pi0_low_true_detProf_st_y = mcs.DetProfile().Y() ;
+	          _pi0_low_true_detProf_st_z = mcs.DetProfile().Z() ;
 	          _pi0_low_true_gammaE = mcs.Start().E() ;
                   _pi0_low_true_detProf_gammaE = mcs.DetProfile().E() ;
 	        }
@@ -1200,9 +1434,12 @@ namespace larlite {
 
 	       if ( _pi0_high_type == 1){
                  auto mcs = ev_mcs->at(ts_index) ;
-	         _pi0_high_true_st_x = mcs.DetProfile().X() ;
-	         _pi0_high_true_st_y = mcs.DetProfile().Y() ;
-	         _pi0_high_true_st_z = mcs.DetProfile().Z() ;
+	         _pi0_high_true_st_x = mcs.Start().X() ;
+	         _pi0_high_true_st_y = mcs.Start().Y() ;
+	         _pi0_high_true_st_z = mcs.Start().Z() ;
+	         _pi0_high_true_detProf_st_x = mcs.DetProfile().X() ;
+	         _pi0_high_true_detProf_st_y = mcs.DetProfile().Y() ;
+	         _pi0_high_true_detProf_st_z = mcs.DetProfile().Z() ;
 	         _pi0_high_true_gammaE = mcs.Start().E() ;
                  _pi0_high_true_detProf_gammaE = mcs.DetProfile().E() ;
 	       }
@@ -1212,19 +1449,19 @@ namespace larlite {
            auto sce_corr_l = _SCE->GetPosOffsets(_pi0_low_true_st_x,_pi0_low_true_st_y,_pi0_low_true_st_z);
            auto sce_corr_h = _SCE->GetPosOffsets(_pi0_high_true_st_x,_pi0_high_true_st_y,_pi0_high_true_st_z);
 
-           _pi0_low_true_st_x += vtxtimecm + 0.7 - sce_corr_l.at(0);
-           _pi0_low_true_st_y += sce_corr_l.at(1);
-           _pi0_low_true_st_z += sce_corr_l.at(2);
+           _pi0_low_true_scecorr_st_x = _pi0_low_true_st_x + vtxtimecm + 0.7 - sce_corr_l.at(0);
+           _pi0_low_true_scecorr_st_y = _pi0_low_true_st_y + sce_corr_l.at(1);
+           _pi0_low_true_scecorr_st_z = _pi0_low_true_st_z + sce_corr_l.at(2);
            
-           _pi0_high_true_st_x += vtxtimecm + 0.7 - sce_corr_h.at(0);
-           _pi0_high_true_st_y += sce_corr_h.at(1);
-           _pi0_high_true_st_z += sce_corr_h.at(2);
+           _pi0_high_true_scecorr_st_x = _pi0_high_true_st_x + vtxtimecm + 0.7 - sce_corr_h.at(0);
+           _pi0_high_true_scecorr_st_y = _pi0_high_true_st_y + sce_corr_h.at(1);
+           _pi0_high_true_scecorr_st_z = _pi0_high_true_st_z + sce_corr_h.at(2);
 
-           if ( _bkgd_id == 2 && _pi0_low_origin != 2 && _pi0_high_origin != 2 ){
-             _signal = true;
-             _n_signals++;
-           }
          }
+       } // Loop over candidate pi0 showers
+       if ( _bkgd_id == 2 && _pi0_low_origin != 2 && _pi0_high_origin != 2 ){
+         _signal = true;
+         _n_signals++;
        }
      }
 
@@ -1304,6 +1541,7 @@ namespace larlite {
            auto mcclus = ev_mcc->at(max_cid) ;
            _gamma_type   = mcclus.StartOpeningAngle() ; // opening angle set to track (0) or shower(1) in mccluster builder
            int gamma_index = mcclus.Width();            // width set to carry mct/s index
+	   float gamma_ancestor_pdg = -1;
 
            if( _gamma_type == 0 ){
              auto mct = ev_mct->at(gamma_index) ;
@@ -1315,14 +1553,21 @@ namespace larlite {
              auto mcs = ev_mcs->at(gamma_index) ;
              _gamma_origin = mcs.Origin(); 
              _gamma_mother_pdg = mcs.MotherPdgCode() ; 
+             gamma_ancestor_pdg = mcs.AncestorPdgCode() ; 
              _gamma_pdg = mcs.PdgCode() ; 
              _gamma_from_pi0 = _gamma_mother_pdg == 111 ? 1 : 0 ;
              _gamma_trueE_detProf = mcs.DetProfile().E();
              _gamma_trueE = mcs.Start().E() ;
-	     _gamma_true_startx = mcs.DetProfile().X() ;
-	     _gamma_true_starty = mcs.DetProfile().Y() ;
-	     _gamma_true_startz = mcs.DetProfile().Z() ;
+	     _gamma_true_detProf_startx = mcs.DetProfile().X() ;
+	     _gamma_true_detProf_starty = mcs.DetProfile().Y() ;
+	     _gamma_true_detProf_startz = mcs.DetProfile().Z() ;
+	     _gamma_true_startx = mcs.Start().X() ;
+	     _gamma_true_starty = mcs.Start().Y() ;
+	     _gamma_true_startz = mcs.Start().Z() ;
            }
+
+	   if ( _gamma_origin == 1 && ( gamma_ancestor_pdg == 111 || gamma_ancestor_pdg == 22 || gamma_ancestor_pdg == 11) )
+	     _n_reco_at_vtx++ ;
 
            if ( _bkgd_id == 2 && _gamma_origin != 2 ){
              _n_signals++;
@@ -1342,8 +1587,8 @@ namespace larlite {
            }   
 
            _gamma_perfect_clustering_E = mc_clus_e ;
-         }
-       }
+         } // If we've found a matching mccluster
+       } // Find plane 2 candidate single shower
      } // if we're filling single shower info
    } // if we're filling MC truth info
 
@@ -1436,6 +1681,9 @@ namespace larlite {
      for ( auto const & s : *ev_shr ){ if ( s.Energy(2) > 1e-30 ) shr_it++ ; } 
      _nshrs = shr_it;
    } 
+
+   // This is for showerrreco efficiency plots
+   std::vector<int> used_mcs_v ;
      
    // Fill info per shower
    if ( ev_shr->size() != 0 ){
@@ -1451,6 +1699,8 @@ namespace larlite {
      // Loop over all showers in this event
      //std::cout<<" ass shower size: "<<ass_showerreco_v.size() <<", "<<ev_shr->size()<<std::endl ;
      for (size_t i = 0; i < ass_showerreco_v.size(); i++ ){
+       
+       shower_clear();
 
        auto s = ev_shr->at(i);
        if ( s.Energy(2) <= 1e-30 ){ continue ; }
@@ -1475,6 +1725,15 @@ namespace larlite {
        _shr_vtx_dist = sqrt( pow(_vtx_x - _shr_startx,2) + pow(_vtx_y - _shr_starty,2) + pow(_vtx_z - _shr_startz,2) ); 
        _shr_trk_delta_theta = s.Direction().Theta() - _mu_angle;
        _shr_trk_delta_phi = s.Direction().Phi() - _mu_phi ;
+
+       geoalgo::Point_t vertex(3);
+       vertex[0] = vtx.X();
+       vertex[1] = vtx.Y();
+       vertex[2] = vtx.Z();
+
+       geoalgo::Vector_t rev_shr1(-1.*s.Direction()) ;
+       auto shr1_bkwrd_hl = ::geoalgo::HalfLine_t(s.ShowerStart(),rev_shr1);
+       _shr_ip = _geoAlgo.SqDist(vertex, shr1_bkwrd_hl) ;
 
        if ( _mc_sample ) {
 
@@ -1555,6 +1814,8 @@ namespace larlite {
              _shr_type   = mcclus.StartOpeningAngle() ; // set opening angle to track (0) or shower(1) in mccluster builder
              auto shr_index = mcclus.Width() ;          // index of track or shower  
 
+	     float shr_ancestor_pdg = -1;
+
              if( _shr_type == 0 ){
                auto mct = ev_mct->at(shr_index) ;
                _shr_origin = mct.Origin(); 
@@ -1566,12 +1827,18 @@ namespace larlite {
                _shr_origin = mcs.Origin(); 
                _shr_pdg = mcs.PdgCode() ; 
                _shr_mother_pdg = mcs.MotherPdgCode() ; 
+               shr_ancestor_pdg = mcs.AncestorPdgCode() ; 
                _shr_from_pi0 = _shr_mother_pdg == 111 ? 1 : 0 ;
                _shr_trueE = mcs.Start().E() ;
                _shr_trueE_detProf = mcs.DetProfile().E();
-	       _shr_true_startx = mcs.DetProfile().X();
-	       _shr_true_starty = mcs.DetProfile().X();
-	       _shr_true_startz = mcs.DetProfile().X();
+	       _shr_true_detProf_startx = mcs.DetProfile().X();
+	       _shr_true_detProf_starty = mcs.DetProfile().X();
+	       _shr_true_detProf_startz = mcs.DetProfile().X();
+	       _shr_true_startx = mcs.Start().X();
+	       _shr_true_starty = mcs.Start().X();
+	       _shr_true_startz = mcs.Start().X();
+
+	       used_mcs_v.emplace_back(shr_index);
               }
              mc_clus_e = 0;
 
@@ -1585,6 +1852,11 @@ namespace larlite {
                mc_clus_e += dE ;
              }   
              _shr_perfect_clustering_E = mc_clus_e ;
+          
+	     if ( _shr_origin == 1 && ( shr_ancestor_pdg == 111 || shr_ancestor_pdg == 22 || shr_ancestor_pdg == 11) ){
+	       _shr_n_true = 1; 
+	       _shr_n_reco = 1;
+	     }
            }
 
            if( _shr_type == -999 ) _n_shr_noise++;
@@ -1596,6 +1868,34 @@ namespace larlite {
        }
        _shower_tree->Fill() ;
      }
+   }
+
+   // If the number of identified mcs's produced at neutrino vtx is more than reco'd showers, 
+   // add some more info to the shower tree. This is for shwoer reco efficiency later
+   if ( _n_mcs_at_vtx > used_mcs_v.size() && _mc_sample ){
+     auto ev_mcs = storage->get_data<event_mcshower>("mcreco") ;
+     if ( !ev_mcs || !ev_mcs->size() ) {std::cout<<"No MCShower!" <<std::endl ; return false; }
+
+     for ( int i = 0 ; i < all_mcs_v.size() ; i++ ){
+
+       int id = all_mcs_v.at(i);
+       if( std::find(used_mcs_v.begin(),used_mcs_v.end(),id) != used_mcs_v.end() )
+         continue;
+       else{
+         _shr_n_reco = 0;
+         _shr_n_true = 1;
+         _shr_trueE_detProf = ev_mcs->at(id).DetProfile().E() ;
+         _shr_trueE = ev_mcs->at(id).Start().E() ;
+         _shr_true_startx = ev_mcs->at(id).Start().X();
+         _shr_true_starty = ev_mcs->at(id).Start().Y();
+         _shr_true_startz = ev_mcs->at(id).Start().Z();
+         _shr_true_detProf_startx = ev_mcs->at(id).DetProfile().X() ;
+         _shr_true_detProf_starty = ev_mcs->at(id).DetProfile().Y() ;
+         _shr_true_detProf_startz = ev_mcs->at(id).DetProfile().Z() ;
+
+         _shower_tree->Fill();
+       }   
+     }   
    }
 
    // Fill info needed to assess GENIE/flux uncertainties
@@ -1688,7 +1988,7 @@ namespace larlite {
     float mcbnbcos_POT = 4.23214; 
     float mc_to_onbeam = dataPOT/mcbnbcos_POT;
 
-    if ( _get_genie_info ){
+    if ( _get_genie_info && _eventweight_producer == "fluxeventweight" ){
       for( int i = 0; i < funcs; i++){
         std::cout<<"FLUX! "<<_flux_by_universe[i][0]<<std::endl ;
         for( int j= 0; j < 1000; j++){
